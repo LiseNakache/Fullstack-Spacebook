@@ -12,6 +12,7 @@ var SpacebookApp = function () {
       console.log(textStatus)
     }
   })
+
   var $posts = $(".posts");
 
   _renderPosts();

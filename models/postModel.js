@@ -8,16 +8,20 @@ var mongoose = require('mongoose');
 
 var Schema = mongoose.Schema
 var commentSchema = new mongoose.Schema({
-
+ text : String,
+ user : String
 });
 
 var postSchema = new mongoose.Schema({
    text : String,
-   comments : [String]
+   comments : [commentSchema],
+   id : String
 });
 
 var Post = mongoose.model('post', postSchema)
 
 
 
+
 module.exports = Post
+// module.exports = Comment

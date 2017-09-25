@@ -1,12 +1,15 @@
 var SpacebookApp = function () {
 
   var posts = [];
+
   $.ajax({
-    method : 'GET',
-    url : '/post' , 
-    dataType : "JSON",
-    success: function (data) {
-      posts = data;
+    method: 'GET',
+    url: '/post',
+    dataType: "json",
+    success: function (allTheSavedPosts) {
+      posts = allTheSavedPosts;
+      console.log(posts);
+      _renderPosts();
     },
     error: function (jqXHR, textStatus, errorThrown) {
       console.log(textStatus)
@@ -15,35 +18,32 @@ var SpacebookApp = function () {
 
   var $posts = $(".posts");
 
-  _renderPosts();
-
   function _renderPosts() {
     $posts.empty();
     var source = $('#post-template').html();
     var template = Handlebars.compile(source);
     for (var i = 0; i < posts.length; i++) {
       var newHTML = template(posts[i]);
-      console.log(newHTML);
       $posts.append(newHTML);
       _renderComments(i)
-
-      
     }
   }
 
-  function addPost(newPost) {
-    posts.push({ text: newPost, comments: [] });
-    _renderPosts();
 
+  function addPost(newPost) {
     $.ajax({
       method: 'POST',
       url: '/post',
       data: { text: newPost, comments: [] },
-      dataType: "JSON",
-      success: function (data) {
-        console.log(data)
+      dataType: "json",
+      success: function (savedPost) {
+        console.log(savedPost)
+        posts.push(savedPost);
+        console.log(posts)
+        _renderPosts();
       },
       error: function (jqXHR, textStatus, errorThrown) {
+        console.log('err')
         console.log(textStatus)
       }
     })
@@ -62,19 +62,61 @@ var SpacebookApp = function () {
   }
 
   var removePost = function (index) {
-    posts.splice(index, 1);
-    _renderPosts();
+    var postId = posts[index]._id
+    $.ajax({
+      method: 'DELETE',
+      url: '/post/' + postId,
+      dataType: "json",
+      success: function (postToRemove) {
+//ici index et non pas postTo Remove car le paramètre qui identifie l'array est l'index
+//contrairement au DB, le parametre est Id
+        posts.splice(index, 1);
+        console.log(posts)
+        _renderPosts();
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        console.log('err')
+        console.log(textStatus)
+      }
+    })
   };
 
   var addComment = function (newComment, postIndex) {
-    posts[postIndex].comments.push(newComment);
-    _renderComments(postIndex);
+    var postId = posts[postIndex]._id
+    $.ajax({
+      method: 'POST',
+      url: '/post/' + postId + '/comments',
+      data: newComment,
+      dataType: "json",
+      success: function (thisPost) {
+        posts[postIndex] = thisPost;
+        _renderComments(postIndex);
+        console.log(thisPost)
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        console.log(textStatus)
+      }
+    })
   };
 
 
   var deleteComment = function (postIndex, commentIndex) {
-    posts[postIndex].comments.splice(commentIndex, 1);
-    _renderComments(postIndex);
+    var postId = posts[postIndex]._id;
+    var commentId = posts[postIndex].comments[commentIndex]._id;
+    $.ajax({
+      method: 'DELETE',
+      url:'/post/' + postId + '/comments/' + commentId,
+      dataType: "json",
+      success: function (post) {
+        posts[postIndex].comments.splice(commentIndex, 1);
+        _renderComments(postIndex);
+        console.log(post)
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        console.log(textStatus)
+      }
+
+    })
   };
 
   return {

@@ -5,7 +5,7 @@ var SpacebookApp = function () {
   $.ajax({
     method: 'GET',
     url: '/post',
-    dataType: "json",
+    dataType: "jsonp",
     success: function (allTheSavedPosts) {
       posts = allTheSavedPosts;
       console.log(posts);
@@ -35,7 +35,7 @@ var SpacebookApp = function () {
       method: 'POST',
       url: '/post',
       data: { text: newPost, comments: [] },
-      dataType: "json",
+      dataType: "jsonp",
       success: function (savedPost) {
         console.log(savedPost)
         posts.push(savedPost);
@@ -66,7 +66,7 @@ var SpacebookApp = function () {
     $.ajax({
       method: 'DELETE',
       url: '/post/' + postId,
-      dataType: "json",
+      dataType: "jsonp",
       success: function (postToRemove) {
 //ici index et non pas postTo Remove car le paramètre qui identifie l'array est l'index
 //contrairement au DB, le parametre est Id
@@ -87,7 +87,7 @@ var SpacebookApp = function () {
       method: 'POST',
       url: '/post/' + postId + '/comments',
       data: newComment,
-      dataType: "json",
+      dataType: "jsonp",
       success: function (thisPost) {
         posts[postIndex] = thisPost;
         _renderComments(postIndex);
@@ -106,7 +106,7 @@ var SpacebookApp = function () {
     $.ajax({
       method: 'DELETE',
       url:'/post/' + postId + '/comments/' + commentId,
-      dataType: "json",
+      dataType: "jsonp",
       success: function (post) {
         posts[postIndex].comments.splice(commentIndex, 1);
         _renderComments(postIndex);
